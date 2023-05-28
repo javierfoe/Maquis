@@ -1,0 +1,22 @@
+﻿public enum Spot
+{
+    BlackMarket,
+    Cafe,
+    Doctor,
+    Fence,
+    FieldEast,
+    FieldWest,
+    Grocer,
+    PontDuNord,
+    PontLeveque,
+    PoorDistrict,
+    RadioA,
+    RadioB,
+    RueBaradat,
+    SafeHouse,
+    SpareRoomEast,
+    SpareRoomNorth,
+    SpareRoomWest,
+    QuestA,
+    QuestB
+}
