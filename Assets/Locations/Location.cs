@@ -5,8 +5,6 @@ using UnityEngine.EventSystems;
 
 public class Location : MonoBehaviour, IPointerClickHandler
 {
-    private static bool _placeAgents = true;
-    private static Location _clickedLocation;
     [SerializeField] private Spot spotName;
 
     private SpriteRenderer _spriteRenderer;
@@ -24,7 +22,20 @@ public class Location : MonoBehaviour, IPointerClickHandler
     public Meeple? Character
     {
         get => _character;
-        set => _character = value;
+        set
+        {
+            _character = value;
+            var color = _character == null
+                ? Color.white
+                : Character switch
+                {
+                    Meeple.Agent => Color.gray,
+                    Meeple.Militia => Color.blue,
+                    Meeple.Soldier => Color.red,
+                    _ => throw new NotImplementedException()
+                };
+            _spriteRenderer.color = color;
+        }
     }
 
     public bool IsBlocked()
@@ -40,6 +51,8 @@ public class Location : MonoBehaviour, IPointerClickHandler
     public void ResetActions(DifficultyLevel difficultyLevel)
     {
         Actions.Clear();
+        var actions = GetActions(difficultyLevel);
+        if (actions == null) return;
         Actions.AddRange(GetActions(difficultyLevel));
     }
 
@@ -88,7 +101,7 @@ public class Location : MonoBehaviour, IPointerClickHandler
             case Spot.RadioB:
                 return AirDropActions(this, difficultyLevel);
             default:
-                throw new NotImplementedException();
+                return null;
         }
     }
 
@@ -112,21 +125,6 @@ public class Location : MonoBehaviour, IPointerClickHandler
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    private void Update()
-    {
-        var color = Character == null
-            ? Color.white
-            : Character switch
-            {
-                Meeple.Agent => Color.gray,
-                Meeple.Militia => Color.blue,
-                Meeple.Soldier => Color.red,
-                _ => throw new NotImplementedException()
-            };
-
-        _spriteRenderer.color = color;
-    }
-
     public void OnValidate()
     {
         gameObject.name = SpotName.ToString();
@@ -134,19 +132,28 @@ public class Location : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (!_placeAgents)
+        if (!MaquisBehaviour.PlaceAgents && Character == Meeple.Agent && eventData.button == PointerEventData.InputButton.Right)
         {
-            Debug.Log(Maquis.CheckPathSafeHouse(this));
+            MaquisBehaviour.SelectedLocation = this;
+            var debug = "";
+            foreach (var action in Actions)
+            {
+                debug += $"{action.AreRequirementsMet()} ";
+            }
+            Debug.Log(debug);
             return;
         }
-        if (_clickedLocation != null)
+
+        if (!IsAvailable() || !MaquisBehaviour.PlaceAgents) return;
+        
+        if (MaquisBehaviour.SelectedLocation != null)
         {
-            _placeAgents = Maquis.SetAgent(SpotName);
-            _clickedLocation = null;
+            MaquisBehaviour.PlaceAgents = Maquis.SetAgent(SpotName);
+            MaquisBehaviour.SelectedLocation = null;
         }
         else
         {
-            _clickedLocation = this;
+            MaquisBehaviour.SelectedLocation = this;
         }
     }
 }

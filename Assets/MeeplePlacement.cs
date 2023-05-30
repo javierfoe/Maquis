@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using TMPro;
-using UnityEngine;
 
 public class MeeplePlacement
 {
@@ -43,6 +41,7 @@ public class MeeplePlacement
         });
 
         Shuffle();
+        MaximumSoldiers();
     }
 
     public void ResetAvailability()
@@ -100,17 +99,12 @@ public class MeeplePlacement
         _currentAgents--;
         var moreReadyAgents = _currentAgents > 0;
         SetEnemy();
-        if (!moreReadyAgents)
+        if (moreReadyAgents) return true;
+        for (var i = _readyAgents; i < _maxEnemies; ++i)
         {
-            for (var i = _readyAgents; i < _maxEnemies; ++i)
-            {
-                SetEnemy();
-            }
-            _readyAgents -= _imprisonedAgents;
-            _imprisonedAgents = 0;
-            _currentAgents = _readyAgents;
+            SetEnemy();
         }
-        return moreReadyAgents;
+        return false;
     }
 
     private void SetEnemy()
@@ -123,7 +117,7 @@ public class MeeplePlacement
     public void HireAgent()
     {
         if (AreAllAgentsHired()) return;
-        _currentAgents++;
+        _readyAgents++;
     }
 
     public bool AreAllAgentsHired()
@@ -131,21 +125,25 @@ public class MeeplePlacement
         return _imprisonedAgents + _currentAgents == _maxAgents;
     }
 
-    public void MaximumSoldiers()
-    {
-        _maxEnemies = Math.Max(_readyAgents, _moraleNazis[_currentMorale]);
-    }
-
     public bool IsMoraleAtMaximum()
     {
         return _currentMorale == MaxMorale;
     }
 
-    public void NextDay()
+    public bool NextDay()
     {
+        _readyAgents -= _imprisonedAgents;
+        _imprisonedAgents = 0;
+        _currentAgents = _readyAgents;
+        _currentNazis = 0;
         _currentDay++;
-        if (!_moraleDecrease[_currentDay]) return;
-        GainMorale(-1);
+        if (_currentDay >= _moraleDecrease.Length) return true;
+        if (_moraleDecrease[_currentDay])
+        {
+            GainMorale(-1);
+        }
+        MaximumSoldiers();
+        return true;
     }
 
     public void GainMorale(int amount)
@@ -155,5 +153,10 @@ public class MeeplePlacement
         {
             _currentMorale = MaxMorale;
         }
+    }
+
+    private void MaximumSoldiers()
+    {
+        _maxEnemies = Math.Max(_readyAgents, _moraleNazis[_currentMorale]);
     }
 }

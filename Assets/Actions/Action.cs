@@ -8,8 +8,10 @@ public class Action
     private readonly Reward _reward;
     private readonly Location _location;
 
-    public Action(Location location, ResourceAmount[] requirements, Reward reward, bool safeHouse = true, bool fixer = false)
+    public Action(Location location, ResourceAmount[] requirements, Reward reward, bool safeHouse = true,
+        bool fixer = false)
     {
+        _location = location;
         _requirements = fixer ? ResourceAmount.AddFixerRequirement(requirements) : requirements;
         _reward = reward;
         PathToSafeHouseRequired = safeHouse;
@@ -27,8 +29,9 @@ public class Action
 
     public bool AreRequirementsMet()
     {
-        return _requirements == null || Maquis.HasResources(_requirements) && !_reward.AirDrop ||
-               _reward.AirDrop && Maquis.IsFieldAvailableForAirDrop();
+        return (!PathToSafeHouseRequired || Maquis.CheckPathSafeHouse(_location)) &&
+               (_requirements == null || Maquis.HasResources(_requirements)) &&
+               (!_reward.AirDrop || Maquis.IsFieldAvailableForAirDrop());
     }
 
     public void PerformAction()

@@ -51,12 +51,37 @@ public static class Maquis
             }
         }
 
-        _meeplePlacement.MaximumSoldiers();
+        ReadyDay();
+        GainResource(new ResourceAmount(Resource.Money, 2));
     }
 
     public static bool CheckPathSafeHouse(Location location)
     {
         return _pathfinding.FindPathSafeHouse(location);
+    }
+
+    public static bool NextDay()
+    {
+        foreach (var location in Locations.Values)
+        {
+            if (location.Character == Meeple.Agent && !CheckPathSafeHouse(location))
+            {
+                _meeplePlacement.ImprisonAgent();
+            }
+            location.Character = null;
+        }
+
+        var result = _meeplePlacement.NextDay();
+        ReadyDay();
+        return result;
+    }
+
+    private static void ReadyDay()
+    {
+        foreach (var location in Locations.Values)
+        {
+            location.ResetActions(_difficultyLevel);
+        }
     }
 
     public static bool SetAgent(Spot spot)
@@ -144,7 +169,7 @@ public static class Maquis
         field.SetResource(resourceAmount);
     }
 
-    public static void GainResource(ResourceAmount resourceAmount, Location location)
+    private static void GainResource(ResourceAmount resourceAmount, Location location = null)
     {
         var resource = resourceAmount.Resource;
 
@@ -157,7 +182,7 @@ public static class Maquis
 
         if (ResourceType.IsSpareRoom(resource))
         {
-            ((SpareRoom)location).SetSpareRoom(resource);
+            ((SpareRoom)location)!.SetSpareRoom(resource);
             _spareRooms.UseSpareRoom(resource);
             return;
         }
@@ -192,6 +217,14 @@ public static class Maquis
         foreach (var resourceAmount in reward.Rewards)
         {
             GainResource(resourceAmount, location);
+        }
+
+        location.Character = null;
+
+        var field = location as Field;
+        if (field)
+        {
+            field.SetResource(null);
         }
     }
 

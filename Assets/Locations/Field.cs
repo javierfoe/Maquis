@@ -6,7 +6,7 @@ public class Field : Location
 
     public bool IsFieldEmpty()
     {
-        return _resourceAmount.Amount == 0;
+        return _resourceAmount == null;
     }
 
     public override bool IsAvailable()
