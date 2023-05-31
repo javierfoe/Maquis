@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class MaquisBehaviour : MonoBehaviour
@@ -18,13 +19,27 @@ public class MaquisBehaviour : MonoBehaviour
 
     [SerializeField] private Location[] locations;
     [SerializeField] private Path[] paths;
+    [SerializeField] private TMP_Text food, money, weapons, medicine, information, explosives, poison, fakeId, agents, morale, soldiers, days;
     [SerializeField] private DifficultyLevel difficultyLevel;
 
     private int _selectedAction;
 
+    private void UpdateResourceTexts(ResourcesDto resourcesDto)
+    {
+        food.text = resourcesDto.Food.ToString();
+        money.text = resourcesDto.Money.ToString();
+        weapons.text = resourcesDto.Weapons.ToString();
+        medicine.text = resourcesDto.Medicine.ToString();
+        information.text = resourcesDto.Information.ToString();
+        explosives.text = resourcesDto.Explosives.ToString();
+        poison.text = resourcesDto.Poison.ToString();
+        fakeId.text = resourcesDto.FakeId.ToString();
+    }
+
     private void Start()
     {
         Maquis.StartGame(locations, paths, difficultyLevel);
+        Maquis.ResourcesEvent.AddListener(UpdateResourceTexts);
     }
 
     private void Update()
@@ -46,6 +61,7 @@ public class MaquisBehaviour : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Return) && SelectedLocation)
             {
                 SelectedLocation.Actions[_selectedAction].PerformAction();
+                _selectedAction = 0;
             }
         }
 

@@ -1634,7 +1634,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 1
-  m_AdditionalShaderChannelsFlag: 1
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -6534,6 +6534,18 @@ MonoBehaviour:
   - {fileID: 699131310}
   - {fileID: 1636311808}
   - {fileID: 599606056}
+  food: {fileID: 826330402}
+  money: {fileID: 864463050}
+  weapons: {fileID: 242610862}
+  medicine: {fileID: 1822824965}
+  information: {fileID: 784263573}
+  explosives: {fileID: 1568648931}
+  poison: {fileID: 520304634}
+  fakeId: {fileID: 707326951}
+  agents: {fileID: 126704461}
+  morale: {fileID: 1385922031}
+  soldiers: {fileID: 392122941}
+  days: {fileID: 781058323}
   difficultyLevel: 1
 --- !u!1 &1510968574
 GameObject:

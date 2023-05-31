@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-public class Action
+﻿public class Action
 {
     public readonly bool PathToSafeHouseRequired;
     private readonly ResourceAmount[] _requirements;

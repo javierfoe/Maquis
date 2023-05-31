@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public static class Maquis
 {
+    public static readonly UnityEvent<ResourcesDto> ResourcesEvent = new ();
+    
     private static readonly Field[] Fields = new Field[2];
     private static readonly Dictionary<Resource, int> Resources = new();
     private static readonly Dictionary<Spot, Location> Locations = new();
@@ -52,7 +55,7 @@ public static class Maquis
         }
 
         ReadyDay();
-        GainResource(new ResourceAmount(Resource.Money, 2));
+        InvokeResourcesEvent();
     }
 
     public static bool CheckPathSafeHouse(Location location)
@@ -68,6 +71,7 @@ public static class Maquis
             {
                 _meeplePlacement.ImprisonAgent();
             }
+
             location.Character = null;
         }
 
@@ -202,15 +206,7 @@ public static class Maquis
     {
         if (reward.AirDrop)
         {
-            try
-            {
-                AirDrop(reward.Rewards[0]);
-            }
-            catch (IndexOutOfRangeException)
-            {
-                Debug.LogError("AirDrop reward is not set. There must be one reward");
-            }
-
+            AirDrop(reward.Rewards[0]);
             return;
         }
 
@@ -226,6 +222,13 @@ public static class Maquis
         {
             field.SetResource(null);
         }
+        
+        InvokeResourcesEvent();
+    }
+
+    private static void InvokeResourcesEvent()
+    {
+        ResourcesEvent.Invoke(new ResourcesDto(Resources));
     }
 
     private static void LoseGame()
